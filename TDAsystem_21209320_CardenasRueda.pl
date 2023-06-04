@@ -1,7 +1,6 @@
 %Laboratorio 2 paradigmas: programación lógica
 %Nota: en metas, "1°" indica meta primaria, y "2°" indica meta/s secundaria/s
 
-
 %HECHOS
 
 
@@ -26,7 +25,7 @@ existeDrive(Letra, [[Letra|_]|_]). %En este caso, el drive ya existe (entrega "f
 existeDrive(Letra, [_|Resto]):- existeDrive(Letra, Resto). %Recursivamente busca si el drive está en sistema.
 
 systemAddDrive([NombreSistema,Drives|Cola], Letra, Nombre, Capacidad, [NombreSistema,[[Letra,Nombre,Capacidad]|Drives]|Cola]):- \+ existeDrive(Letra, Drives).
-
+											
 %Predicado de "register"
 %Constructor de usuarios
 %Dominio: Sistema (list) X nombre usuario (str) X sistema (list)
@@ -38,3 +37,16 @@ existeUsuario(Nombre, [Nombre|_]). %El usuario ya se encuentra registrado
 existeUsuario(Nombre, [_|Resto]):- existeUsuario(Nombre, Resto). %Busca por recursión si el usuario ya se encuentra registrado.
 
 systemRegister([NombreSistema, Drives, Usuarios|Cola], Usuario, [NombreSistema, Drives, [Usuario|Usuarios]|Cola]):- \+ existeUsuario(Usuario, Usuarios).
+
+%Predicado de "login"
+%Modificador
+%Dominio: Sistema (list) X nombre usuario (str) X sistema (list)
+%Meta:  1°:Loguear usuario
+%	2°:Verificar existencia de usuario
+usuarioVacio([]).
+usuarioLogueado(Nombre, [Nombre,_]). %Comprueba si existe algo en la posición de "usuario logueado" (primera posición de la lista)
+usuarioLogueado(_, [_,_]):- fail.
+
+systemLogin([Nombre, Drives, Usuarios, Log|Cola], Login, [Nombre, Drives, Usuarios, [Login,_]|Cola]):- existeUsuario(Login, Usuarios),
+												       usuarioLogueado(Login, Log);
+												       usuarioVacio(Log).
