@@ -50,3 +50,9 @@ usuarioLogueado(_, [_,_]):- fail.
 systemLogin([Nombre, Drives, Usuarios, Log|Cola], Login, [Nombre, Drives, Usuarios, [Login,_]|Cola]):- existeUsuario(Login, Usuarios),
 												       usuarioLogueado(Login, Log);
 												       usuarioVacio(Log).
+%Predicado de "logout"
+%Modificador
+%Dominio: Sistema (list) X sistema (list)
+%Meta: 1°:Desloguear al usuario
+
+systemLogout([Nombre, Drives, Usuarios, Log|Cola], [Nombre, Drives, Usuarios, []|Cola]):- \+ usuarioVacio(Log).	
