@@ -64,5 +64,23 @@ systemLogout([Nombre, Drives, Usuarios, Log|Cola], [Nombre, Drives, Usuarios, []
 %	2°:Verificar que haya un usuario logueado
 %	   Comrpobar que el drive a moverse exista
 
-systemSwitchDrive([NombreSistema, Drives, Usuarios, [Login,_]|Cola], Letra, [[NombreSistema, Letra], Drives, Usuarios, [Login, Letra]|Cola]):- usuarioLogueado(_, [Login,_]), %En este caso solo verifica que haya algo en la primera posición de "Log"
-																                   existeDrive(Letra, Drives).
+systemSwitchDrive([[NombreSistema|_], Drives, Usuarios, [Login|_]|Cola], Letra, [[NombreSistema, Letra], Drives, Usuarios, [Login, Ruta]|Cola]):- usuarioLogueado(_, [Login,_]), %En este caso solo verifica que haya algo en la primera posición de "Log"
+																               	  existeDrive(Letra, Drives),
+																		  string_concat(Letra, ":/", Ruta).
+
+
+%Predicado de "make-dir"
+%Constructor
+%Dominio: Sistema (list) X carpeta (str) X sistema (list)
+%Meta: 1°:Añadir carpeta al sistema
+
+systemMkdir([NombreSistema, Drives, Usuarios, [Login,Ruta], Folders|Cola], Carpeta, [NombreSistema, Drives, Usuarios, [Login, Ruta], [[Carpeta, Login, Ruta]|Folders]|Cola]).
+
+
+
+
+
+
+
+
+
