@@ -55,4 +55,14 @@ systemLogin([Nombre, Drives, Usuarios, Log|Cola], Login, [Nombre, Drives, Usuari
 %Dominio: Sistema (list) X sistema (list)
 %Meta: 1°:Desloguear al usuario
 
-systemLogout([Nombre, Drives, Usuarios, Log|Cola], [Nombre, Drives, Usuarios, []|Cola]):- \+ usuarioVacio(Log).	
+systemLogout([Nombre, Drives, Usuarios, Log|Cola], [Nombre, Drives, Usuarios, []|Cola]):- \+ usuarioVacio(Log).
+
+%Predicado de "switch-drive"
+%Modificador
+%Dominio: Sistema (list) X letra (str) X sistema (list)
+%Meta:  1°:Fijar una unidad del sistema para realizar acciones
+%	2°:Verificar que haya un usuario logueado
+%	   Comrpobar que el drive a moverse exista
+
+systemSwitchDrive([NombreSistema, Drives, Usuarios, [Login,_]|Cola], Letra, [[NombreSistema, Letra], Drives, Usuarios, [Login, Letra]|Cola]):- usuarioLogueado(_, [Login,_]), %En este caso solo verifica que haya algo en la primera posición de "Log"
+																                   existeDrive(Letra, Drives).
