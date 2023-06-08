@@ -64,7 +64,7 @@ systemLogout([Nombre, Drives, Usuarios, Log|Cola], [Nombre, Drives, Usuarios, []
 %	2°:Verificar que haya un usuario logueado
 %	   Comrpobar que el drive a moverse exista
 
-systemSwitchDrive([[NombreSistema|_], Drives, Usuarios, [Login|_]|Cola], Letra, [[NombreSistema, Letra], Drives, Usuarios, [Login, Ruta]|Cola]):- usuarioLogueado(_, [Login,_]), %En este caso solo verifica que haya algo en la primera posición de "Log"
+systemSwitchDrive([[NombreSistema|_], Drives, Usuarios, [Login|_]|Cola], Letra, [[NombreSistema, Ruta], Drives, Usuarios, [Login, Ruta]|Cola]):- usuarioLogueado(_, [Login,_]), %En este caso solo verifica que haya algo en la primera posición de "Log"
 																               	  existeDrive(Letra, Drives),
 																		  string_concat(Letra, ":/", Ruta).
 
@@ -78,9 +78,19 @@ systemMkdir([NombreSistema, Drives, Usuarios, [Login,Ruta], Folders|Cola], Carpe
 
 
 
+%Predicado de "change-directory"
+%Modificador
+%Dominio: Sistema (list) X comando (str) X sistema (list)
+%Meta:  1°:Cambiar la dirección actual del sistema
+%	2°:Identificar el comando y realizar operaciones de acuerdo a ello
 
+existeCarpeta(_, []):- fail.
+existeCarpeta(Nombre, [[Nombre|_]|_]).
+existeCarpeta(Nombre, [_|Resto]):- existeCarpeta(Nombre, Resto).
 
-
+systemCd([NombreSistema, Drives, Usuarios, [Log, Ruta], Folders|Cola], Carpeta, [NombreSistema, Drives, Usuarios, [Log, NewPath], Folders|Cola]):- existeCarpeta(Carpeta, Folders),
+																	    	   string_concat(Ruta, Carpeta, NewP),
+																	     	   string_concat(NewP, "/", NewPath).
 
 
 
