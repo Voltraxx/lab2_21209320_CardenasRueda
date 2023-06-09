@@ -1,6 +1,7 @@
 %Laboratorio 2 paradigmas: programación lógica
 %Nota: en metas, "1°" indica meta primaria, y "2°" indica meta/s secundaria/s
 
+
 %HECHOS
 
 
@@ -84,13 +85,24 @@ systemMkdir([NombreSistema, Drives, Usuarios, [Login,Ruta], Folders|Cola], Carpe
 %Meta:  1°:Cambiar la dirección actual del sistema
 %	2°:Identificar el comando y realizar operaciones de acuerdo a ello
 
+subCadenaFinal(Path, NewPath):- sub_string(Path, _, _, Ultimo, "/"),
+				sub_string(Path, 0, Ultimo, _, NewPath).
+
+igual(X, Y):- X \= Y.
+
 existeCarpeta(_, []):- fail.
 existeCarpeta(Nombre, [[Nombre|_]|_]).
 existeCarpeta(Nombre, [_|Resto]):- existeCarpeta(Nombre, Resto).
 
+systemCd([[NombreSistema, Raiz], Drives, Usuarios, [Log,_]|Cola], "/", [[NombreSistema, Raiz], Drives, Usuarios, [Log, Raiz]|Cola]).
+systemCd([[NombreSistema, Raiz], Drives, Usuarios, [Log, Ruta]|Cola], "..", [[NombreSistema, Raiz], Drives, Usuarios, [Log, NuevaRuta]|Cola]):- subCadenaFinal(Ruta, NuevaRuta).
 systemCd([NombreSistema, Drives, Usuarios, [Log, Ruta], Folders|Cola], Carpeta, [NombreSistema, Drives, Usuarios, [Log, NewPath], Folders|Cola]):- existeCarpeta(Carpeta, Folders),
 																	    	   string_concat(Ruta, Carpeta, NewP),
 																	     	   string_concat(NewP, "/", NewPath).
+
+
+
+
 
 
 
