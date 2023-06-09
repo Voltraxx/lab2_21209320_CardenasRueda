@@ -45,7 +45,7 @@ systemRegister([NombreSistema, Drives, Usuarios|Cola], Usuario, [NombreSistema, 
 %Meta:  1°:Loguear usuario
 %	2°:Verificar existencia de usuario
 usuarioVacio([]).
-usuarioLogueado(Nombre, [Nombre,_]). %Comprueba si existe algo en la posición de "usuario logueado" (primera posición de la lista)
+usuarioLogueado(Nombre, [Nombre,_]). %Comprueba si existe algo en la posición de "usuario logueado" (primera posición de la lista). Si es el mismo usuario entrega el mismo sistema de entrada.
 usuarioLogueado(_, [_,_]):- fail.
 
 systemLogin([Nombre, Drives, Usuarios, Log|Cola], Login, [Nombre, Drives, Usuarios, [Login,_]|Cola]):- existeUsuario(Login, Usuarios),
@@ -99,7 +99,10 @@ systemCd([[NombreSistema, Raiz], Drives, Usuarios, [Log, Ruta]|Cola], "..", [[No
 systemCd([NombreSistema, Drives, Usuarios, [Log, Ruta], Folders|Cola], Carpeta, [NombreSistema, Drives, Usuarios, [Log, NewPath], Folders|Cola]):- existeCarpeta(Carpeta, Folders),
 																	    	   string_concat(Ruta, Carpeta, NewP),
 																	     	   string_concat(NewP, "/", NewPath).
+%Predicado de "add-file"
+file(Nombre, Contenido, [Nombre, Contenido]).
 
+systemAddFile([N, D, U, L, F, Archivos|Cola], File, [N, D, U, L, F, [File|Archivos]|Cola]).
 
 
 
