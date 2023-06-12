@@ -3,6 +3,7 @@
 :- use_module(tdaUsuario_21209320_CardenasRueda).
 :- use_module(tdaDrives_21209320_CardenasRueda).
 :- use_module(tdaCarpeta_21209320_CardenasRueda).
+:- use_module(tdaArchivo_21209320_CardenasRueda).
 
 %Predicado de "system"
 %Constructor de sistema
@@ -83,7 +84,9 @@ systemCd([NombreSistema, Drives, Usuarios, [Log, Ruta], Folders|Cola], Carpeta, 
 %	2°: Transformar el archivo entregado "file" en una lista con sus datos
 file(Nombre, Contenido, [Nombre, Contenido]).
 
-systemAddFile([N, D, U, L, F, Archivos|Cola], File, [N, D, U, L, F, [File|Archivos]|Cola]).
+systemAddFile([N,D,U,[L,R],A|Cola], File, [N,D,U,[L,R],[NuevaFile|A]|Cola]):- crearArchivo(File,L,R,NuevaFile).
+
+
 
 
 

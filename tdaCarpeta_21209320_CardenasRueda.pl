@@ -1,5 +1,4 @@
 %TDA carpeta
-
 :- module(tdaCarpeta_21209320_CardenasRueda, [existeCarpeta/2, nuevaCarpeta/4]).
 
 %Predicado de "member"
