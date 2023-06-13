@@ -3,7 +3,7 @@
 
 %Predicado de "member"
 %Pertenencia
-%Dominio: Nombre carpeta (str) X carpetas (list)
+%Dominio: Carpeta (list) X carpetas (list)
 %Meta: 1°:Verificar si la carpeta ya existe
 
 existeCarpeta(_, []):- fail. %Este caso es cuando NO existe la carpeta en sistema

@@ -69,7 +69,7 @@ systemMkdir([NombreSistema, Drives, Usuarios, [Login,Ruta], Folders|Cola], Carpe
 %Meta:  1°:Cambiar la dirección actual del sistema
 %	2°:Identificar el comando y realizar operaciones de acuerdo a ello
 
-subCadenaFinal(Path, NewPath):- sub_string(Path, _, _, Ultimo, "/"),
+subCadenaFinal(Path, NewPath):- sub_string(Path, _, _, Ultimo, "/"), %Se encarga de eliminar el último directorio presente de la ruta junto al "/" final
 				sub_string(Path, 0, Ultimo, _, NewPath).
 
 systemCd([[NombreSistema, Raiz], Drives, Usuarios, [Log,_]|Cola], "/", [[NombreSistema, Raiz], Drives, Usuarios, [Log, Raiz]|Cola]).
@@ -82,9 +82,10 @@ systemCd([NombreSistema, Drives, Usuarios, [Log, Ruta], Folders|Cola], Carpeta, 
 %Dominio: Sistema (list) X archivo (list) X sistema (list)
 %Meta:	1°: Añadir un archivo al sistema
 %	2°: Transformar el archivo entregado "file" en una lista con sus datos
-file(Nombre, Contenido, [Nombre, Contenido]).
 
-systemAddFile([N,D,U,[L,R],A|Cola], File, [N,D,U,[L,R],[NuevaFile|A]|Cola]):- crearArchivo(File,L,R,NuevaFile).
+file(Nombre, Contenido, [Nombre, Contenido]). %Define un archivo como una lista que contiene un nombre y su contenido
+
+systemAddFile([N,D,U,L,F,A|Cola], [FN,FC], [N,D,U,L,F,[[FN,FC|L]|A]|Cola]).
 
 
 

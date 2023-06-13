@@ -20,4 +20,5 @@ usuarioLogueado(_, [_,_]):- fail.
 %Otros
 %Dominio: Log (list)
 %Meta:  1°:Verificar si el log del sistema está vacío o no
+
 usuarioVacio([]). %Para el caso especial en donde no hay algún usuario logueado.
