@@ -1,5 +1,5 @@
 %TDA archivos
-:- module(tdaArchivo_21209320_CardenasRueda, [existeArchivo/2, existeArchivoNom/3, anadirArchivo/3, reemplazarArchivo/3, eliminarArchivo/3, copiarArchivo/4, obtenerArchivo/4, reemplazarArchivo/4]).
+:- module(tdaArchivo_21209320_CardenasRueda, [existeArchivo/2, existeArchivoNom/3, anadirArchivo/3, reemplazarArchivo/3, eliminarArchivo/3, copiarArchivo/4, obtenerArchivo/4, reemplazarArchivoNom/4]).
 
 %Predicado de "member"
 %Pertenencia
@@ -39,6 +39,8 @@ reemplazarArchivo([Nombre, Contenido, Usuario, Ruta], [PrimElemento|Cola], [Prim
 	reemplazarArchivo([Nombre, Contenido, Usuario, Ruta], Cola, NuevaCola).
 
 
+
+
 %Modificador
 %Dominio: Nombre (str) X listaArchivos (list) X nuevaListaArchivos (list)
 %Meta:  1°: Generar una lista con los archivos deseados eliminados, dado su nombre.
@@ -62,6 +64,7 @@ copiarArchivo(Nombre, Destino, [[Nombre, Contenido, Usuario, _]|_], [Nombre, Con
 copiarArchivo(Nombre, Destino, [_|Cola], ArchivoSalida):-
 	copiarArchivo(Nombre, Destino, Cola, ArchivoSalida).
 
+
 %Selector
 %Dominio: Nombre (str) X Ruta (str) X listaArchivos (list) X Archivo (list)
 %Meta:  1°: Obtener los datos de un archivo
@@ -71,6 +74,7 @@ obtenerArchivo(_, _, [], []):- fail. %Esto comprueba que el archivo no existe
 obtenerArchivo(Nombre, Ruta, [[Nombre, Contenido, Usuario, Ruta]|_], [Nombre, Contenido, Usuario, Ruta]).
 obtenerArchivo(Nombre, Ruta, [_|Cola], _):-
 	obtenerArchivo(Nombre, Ruta, Cola, _).
+
 
 %Modificador
 %Dominio: Nombre (str) X Nombre (str) X listaArchivos (str) X listaArchivos (list)

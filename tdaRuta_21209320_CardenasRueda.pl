@@ -42,7 +42,7 @@ actualizarRuta([[Nombre, Usuario, Ruta] | Cola], RutaPadreOld, RutaPadreNew, [[N
 
 
 %Modificador
-%Dominio: Carpeta (list) X destino (Str) X nuevaCarpeta (list)
+%Dominio: Archivo (list) X destino (Str) X nuevoArchivo (list)
 %Meta:	1°: Actualizar la ruta de una carpeta por una dirección destino dada
 
 cambiarRuta([N,C,U,_], Destino, [N,C,U,Destino]).

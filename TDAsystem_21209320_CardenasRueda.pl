@@ -157,10 +157,28 @@ systemCopy([N,D,U,[L,R],C,A|Cola], Nombre, Destino, [N,D,U,[L,R],NuevasCarpetas,
 %NOTA: Solo funciona en archivos, no en carpetas
 
 systemMove([N,D,U,[L,R],C,A|Cola], Nombre, Destino, [N,D,U,[L,R],C,NuevosArchivos|Cola]):-
+	existeArchivoNom(Nombre, R, A),
+	\+ existeArchivoNom(Nombre, Destino, A), %Esto es para verificar la unicidad por nivel
+	copiarArchivo(Nombre, Destino, A, ArchivoCopiado),
 	eliminarArchivo(Nombre, A, Aux),
-	obtenerArchivo(Nombre, R, A, ArchivoProvisional),
-	cambiarRuta(ArchivoProvisional, Destino, NuevoArchivoProvisional),
-	anadirArchivo(NuevoArchivoProvisional, Aux, NuevosArchivos).
+	anadirArchivo(ArchivoCopiado, Aux, NuevosArchivos).
+
+systemMove([N,D,U,[L,R],C,A|Cola], Nombre, Destino, [N,D,U,[L,R],NuevasCarpetas,NuevosArchivos|Cola]):-
+	existeCarpetaNom(Nombre, R, C),
+	\+ existeCarpetaNom(Nombre, Destino, C),
+	copiarCarpeta(Nombre, R, Destino, C, CopiaCarpetaAux),
+	copiarSubCarpetas(R, C, ListaSubCarpetas),
+	copiarSubArchivos(R, A, ListaSubArchivos),
+	actualizarRuta(ListaSubArchivos, R, Destino, NuevaListaA),
+	actualizarRuta(ListaSubCarpetas, R, Destino, NuevaListaC),
+	append(NuevaListaA, A, NuevosArchivosAux),
+	append(NuevaListaC, C, NuevasCarpetasAux0),
+	eliminarCarpeta(Nombre, NuevasCarpetasAux0, Aux),
+	anadirCarpeta(CopiaCarpetaAux, Aux, NuevasCarpetasAux),
+	string_concat(R, Nombre, Aux1),
+	string_concat(Aux1, "/", Aux2),
+	eliminarSubArchivos(Aux2, NuevosArchivosAux, NuevosArchivos),
+	eliminarSubCarpetas(Aux2, NuevasCarpetasAux, NuevasCarpetas).
 
 
 %Predicado de "rename"
@@ -180,13 +198,4 @@ systemRen([N,D,U,[L,R],C|Cola], NombreOldC, NombreNewC, [N,D,U,[L,R],NuevasCarpe
 systemRen([N,D,U,[L,R],C,A|Cola], NombreOldA, NombreNewA, [N,D,U,[L,R],C,NuevosArchivos|Cola]):- %Trabaja con archivos directamente visibles
 	existeArchivoNom(NombreOldA, R, A),
 	\+ existeArchivoNom(NombreNewA, R, A),
-	reemplazarArchivo(NombreOldA, NombreNewA, A, NuevosArchivos).
-
-
-
-
-
-
-
-
-
+	reemplazarArchivoNom(NombreOldA, NombreNewA, A, NuevosArchivos).
