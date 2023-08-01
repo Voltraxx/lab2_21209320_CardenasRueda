@@ -1,16 +1,18 @@
-%Laboratorio 2 paradigmas: programación lógica
+ %Laboratorio 2 paradigmas: programación lógica
 %Nota: en metas, "1°" indica meta primaria, y "2°" indica meta/s secundaria/s
+
 :- use_module(tdaUsuario_21209320_CardenasRueda).
 :- use_module(tdaDrives_21209320_CardenasRueda).
 :- use_module(tdaCarpeta_21209320_CardenasRueda).
 :- use_module(tdaArchivo_21209320_CardenasRueda).
+:- use_module(tdaRuta_21209320_CardenasRueda).
 
 %Predicado de "system"
 %Constructor de sistema
 %Dominio: Nombre del sistema (str) X Sistema (list)
 %Meta: 1°: Entregar una lista de 8 para referenciar: nombre, drives, usuarios, log, carpetas, archivos, papelera de carpetas, papelera de archivos.
 
-system(Nombre, [[Nombre],[],[],[],[],[],[],[]]).
+system(Nombre, [[Nombre,_,_],[],[],[],[],[],[],[]]).
 
 %Predicado de "add-drive"
 %Constructor de drives
@@ -18,8 +20,9 @@ system(Nombre, [[Nombre],[],[],[],[],[],[],[]]).
 %Meta:  1°:Añadir un drive de acuerdo a los datos entregados como letra, nombre y capacidad al sistema
 %	2°:Verificar si el drive ya se encuentra en el sistema.
 
-systemAddDrive([NombreSistema,Drives|Cola], Letra, Nombre, Capacidad, [NombreSistema,[[NuevaLetra,Nombre,Capacidad]|Drives]|Cola]):- atom_string(Letra, NuevaLetra), %Transforma Letra, en caso de ser un carácter, a un string.
-																     \+ existeDrive(NuevaLetra, Drives). %Añade el drive solo si no se ha añadido uno con la misma letra anteriormente
+systemAddDrive([S,D|Cola], Letra, Nombre, Almacenamiento, [S,[[Letra, Nombre, Almacenamiento]|D]|Cola]):-
+	atom_string(Letra, NuevaLetra),
+	\+ existeDrive(NuevaLetra, D).
 											
 %Predicado de "register"
 %Constructor de usuarios
@@ -27,7 +30,8 @@ systemAddDrive([NombreSistema,Drives|Cola], Letra, Nombre, Capacidad, [NombreSis
 %Meta:  1°:Añadir usuario al sistema.
 %	2°:Verificar si el usuario ya se encuentra registrado en el sistema.
 
-systemRegister([NombreSistema, Drives, Usuarios|Cola], Usuario, [NombreSistema, Drives, [Usuario|Usuarios]|Cola]):- \+ miembroUsuario(Usuario, Usuarios). %Registra al usuario solo si este aún no ha sido registrado previamente
+systemRegister([N,D,U|Cola], NombreUsuario, [N,D,[NombreUsuario|U]|Cola]):-
+	\+ existeUsuario(NombreUsuario, U).
 
 %Predicado de "login"
 %Modificador
@@ -35,14 +39,17 @@ systemRegister([NombreSistema, Drives, Usuarios|Cola], Usuario, [NombreSistema, 
 %Meta:  1°:Loguear usuario
 %	2°:Verificar existencia de usuario
 
-systemLogin([Nombre, Drives, Usuarios, Log|Cola], Login, [Nombre, Drives, Usuarios, [Login,_]|Cola]):- miembroUsuario(Login, Usuarios),
-												       (usuarioLogueado(Login, Log); usuarioVacio(Log)). %Compara primero por ";" y luego por ","
+systemLogin([N,D,U,L|Cola], NombreUsuario, [N,D,U,[NombreUsuario,_]|Cola]):-
+	existeUsuario(NombreUsuario, U),
+	(usuarioLogueado(NombreUsuario, L) ; logVacio(L)).
+
 %Predicado de "logout"
 %Modificador
 %Dominio: Sistema (list) X sistema (list)
 %Meta: 1°:Desloguear al usuario
 
-systemLogout([Nombre, Drives, Usuarios, Log|Cola], [Nombre, Drives, Usuarios, []|Cola]):- \+ usuarioVacio(Log). %La condición pregunta por si hay algún usuario actualmente logueado o no. En caso de que no haya se retorna "false"
+systemLogout([N,D,U,L|Cola], [N,D,U,[]|Cola]):-
+	\+ logVacio(L).
 
 %Predicado de "switch-drive"
 %Modificador
@@ -51,17 +58,20 @@ systemLogout([Nombre, Drives, Usuarios, Log|Cola], [Nombre, Drives, Usuarios, []
 %	2°:Verificar que haya un usuario logueado
 %	   Comrpobar que el drive a moverse exista
 
-systemSwitchDrive([[NombreSistema|_], Drives, Usuarios, [Login|_]|Cola], Letra, [[NombreSistema, Ruta], Drives, Usuarios, [Login, Ruta]|Cola]):- usuarioLogueado(_, [Login,_]), %En este caso solo verifica que haya algo en la primera posición de "Log"
-																               	 existeDrive(Letra, Drives),
-																		 string_concat(Letra, ":/", Ruta). %Al cambiar de drive siempre se ubicará en la raiz de este
+systemSwitchDrive([[N,Fecha,_],D,U,[L,_]|Cola], Letra, [[N,Fecha,Raiz],D,U,[L, Raiz]|Cola]):-
+	atom_string(Letra, Aux),
+	upcase_atom(Aux, NuevaLetra), %Esto solo hace que se muestre el disco como mayúscula en la ruta
+	existeDrive(NuevaLetra, D),
+	string_concat(NuevaLetra, ":/", Raiz).
 
 %Predicado de "make-dir"
 %Constructor
 %Dominio: Sistema (list) X carpeta (str) X sistema (list)
 %Meta: 1°:Añadir carpeta al sistema
 
-systemMkdir([NombreSistema, Drives, Usuarios, [Login,Ruta], Folders|Cola], Carpeta, [NombreSistema, Drives, Usuarios, [Login, Ruta], [NuevaCarpeta|Folders]|Cola]):- nuevaCarpeta(Carpeta, Login, Ruta, NuevaCarpeta),
-																				     \+ existeCarpeta(NuevaCarpeta, Folders).
+systemMkdir([N,D,U,[L,R],C|Cola], NombreCarpeta, [N,D,U,[L,R],[Carpeta|C]|Cola]):-
+	crearCarpeta(NombreCarpeta, L, R, Carpeta),
+	\+ existeCarpeta(Carpeta, C).
 
 %Predicado de "change-directory"
 %Modificador
@@ -69,26 +79,108 @@ systemMkdir([NombreSistema, Drives, Usuarios, [Login,Ruta], Folders|Cola], Carpe
 %Meta:  1°:Cambiar la dirección actual del sistema
 %	2°:Identificar el comando y realizar operaciones de acuerdo a ello
 
-subCadenaFinal(Path, NewPath):- sub_string(Path, _, _, Ultimo, "/"), %Se encarga de eliminar el último directorio presente de la ruta junto al "/" final
-				sub_string(Path, 0, Ultimo, _, NewPath).
+systemCd([[N,F,Raiz],D,U,[L,R],C|Cola], Comando, [[N,F,Raiz],D,U,[L,NuevaRuta],C|Cola]):-
+	nuevaDireccion(R, Comando, L, R, C, Raiz, NuevaRuta).
+	%Se ingresan a nuevaDireccion los datos de L, R, C y Raiz para poder cambiar la ruta, usandose L, R, C para cambiar a un directorio, y Raiz para el comando "/"
 
-systemCd([[NombreSistema, Raiz], Drives, Usuarios, [Log,_]|Cola], "/", [[NombreSistema, Raiz], Drives, Usuarios, [Log, Raiz]|Cola]).
-systemCd([[NombreSistema, Raiz], Drives, Usuarios, [Log, Ruta]|Cola], "..", [[NombreSistema, Raiz], Drives, Usuarios, [Log, NuevaRuta]|Cola]):- subCadenaFinal(Ruta, NuevaRuta).
-systemCd([NombreSistema, Drives, Usuarios, [Log, Ruta], Folders|Cola], Carpeta, [NombreSistema, Drives, Usuarios, [Log, NewPath], Folders|Cola]):- existeCarpeta([Carpeta,_,Ruta], Folders),
-																	    	   string_concat(Ruta, Carpeta, NewP),
-																	     	   string_concat(NewP, "/", NewPath).
+
 %Predicado de "add-file"
 %Constructor
 %Dominio: Sistema (list) X archivo (list) X sistema (list)
 %Meta:	1°: Añadir un archivo al sistema
-%	2°: Transformar el archivo entregado "file" en una lista con sus datos
+%		2°: Transformar el archivo entregado "file" en una lista con sus datos
 
-file(Nombre, Contenido, [Nombre, Contenido]). %Define un archivo como una lista que contiene un nombre y su contenido
+file(Nombre, Contenido, [Nombre, Contenido]). %Crea un archivo file
+archivoActualizado(Nombre, Contenido, Usuario, Ruta, [Nombre, Contenido, Usuario, Ruta]). %Añade usuario y ruta al archivo
 
-systemAddFile([N,D,U,L,F,A|Cola], [FN,FC], [N,D,U,L,F,[[FN,FC|L]|A]|Cola]).
+systemAddFile([N,D,U,[L,R],C,A|Cola], [Nombre, Contenido], [N,D,U,[L,R],C,NuevosArchivos|Cola]):-
+	archivoActualizado(Nombre, Contenido, L, R, NuevoArchivo),
+	existeArchivo(NuevoArchivo, A),
+	reemplazarArchivo(NuevoArchivo, A, NuevosArchivos).
+
+systemAddFile([N,D,U,[L,R],C,A|Cola], [Nombre, Contenido], [N,D,U,[L,R],C,NuevosArchivos|Cola]):- %Caso para cuando no existe el archivo
+	archivoActualizado(Nombre, Contenido, L, R, NuevoArchivo),
+	\+ existeArchivo(NuevoArchivo, A),
+	anadirArchivo(NuevoArchivo, A, NuevosArchivos).
 
 
+%Precidado de "del"
+%Modificador
+%Dominio: Sistema (list) X nombreArchivo (Str) X Sistema (list)
+%Meta:	1°: Eliminar un archivo/carpeta del sistema
+%		2°: Buscar existencia de elemento a eliminar
+%		3°: En caso de eliminar carpeta, eliminar subarchivos y subcarpetas mediante la ruta de la carpeta padre
 
+systemDel([N,D,U,[L,R],C,A|Cola], NombreArchivo, [N,D,U,[L,R],C,NuevosArchivos|Cola]):-
+	existeArchivoNom(NombreArchivo, R, A),
+	eliminarArchivo(NombreArchivo, A, NuevosArchivos).
+
+systemDel([N,D,U,[L,R],C,A|Cola], NombreCarpeta, [N,D,U,[L,R],NuevasCarpetas,NuevosArchivos|Cola]):-
+	existeCarpetaNom(NombreCarpeta, R, C),
+	eliminarCarpeta(NombreCarpeta, C, Aux),
+	string_concat(R, NombreCarpeta, Aux1),
+	string_concat(Aux1, "/", Aux2),
+	eliminarSubArchivos(Aux2, A, NuevosArchivos),
+	eliminarSubCarpetas(Aux2, Aux, NuevasCarpetas).
+
+
+%Predicado de "copy"
+%Modificador
+%Dominio: Sistema (list) X nombre (str) X destino (str) X Sistema (list)
+%Meta:	1°: Copiar un archivo/carpeta del sistema
+%		2°: buscar existencia del elemento
+%		  : seleccionar subelementos en caso de ser una carpeta
+%		  : Actualizar ruta de los subelementos
+
+systemCopy([N,D,U,[L,R],C,A|Cola], Nombre, Destino, [N,D,U,[L,R],C,NuevosArchivos|Cola]):-
+	existeArchivoNom(Nombre, R, A),
+	\+ existeArchivoNom(Nombre, Destino, A), %Esto es para verificar la unicidad por nivel
+	copiarArchivo(Nombre, Destino, A, ArchivoCopiado),
+	anadirArchivo(ArchivoCopiado, A, NuevosArchivos).
+
+systemCopy([N,D,U,[L,R],C,A|Cola], Nombre, Destino, [N,D,U,[L,R],NuevasCarpetas,NuevosArchivos|Cola]):-
+	existeCarpetaNom(Nombre, R, C),
+	\+ existeCarpetaNom(Nombre, Destino, C),
+	copiarSubCarpetas(R, C, ListaSubCarpetas),
+	copiarSubArchivos(R, A, ListaSubArchivos),
+	actualizarRuta(ListaSubArchivos, R, Destino, NuevaListaA),
+	actualizarRuta(ListaSubCarpetas, R, Destino, NuevaListaC),
+	append(NuevaListaA, A, NuevosArchivos),
+	append(NuevaListaC, C, NuevasCarpetas).
+
+
+%Predicado de "move"
+%Modificador
+%Dominio: Sistema (list) X nombre (str) X destino (str) X sistema (list)
+%Meta:	1°: Mover un archivo a una direccion destino
+%		2°: Eliminar dicho archivo de la direccion destino
+%NOTA: Solo funciona en archivos, no en carpetas
+
+systemMove([N,D,U,[L,R],C,A|Cola], Nombre, Destino, [N,D,U,[L,R],C,NuevosArchivos|Cola]):-
+	eliminarArchivo(Nombre, A, Aux),
+	obtenerArchivo(Nombre, R, A, ArchivoProvisional),
+	cambiarRuta(ArchivoProvisional, Destino, NuevoArchivoProvisional),
+	anadirArchivo(NuevoArchivoProvisional, Aux, NuevosArchivos).
+
+
+%Predicado de "rename"
+%Modificador
+%Dominio: Sistema (list) X nombreOld (Str) X nombreNew (Str) X sistema (list)
+%Meta:	1°: buscar existencia del elemento
+%		2°: Revisar que no exista el nuevo nombre en el nivel actual
+%		  : reemplazar el nombre del elemento
+
+systemRen([N,D,U,[L,R],C|Cola], NombreOldC, NombreNewC, [N,D,U,[L,R],NuevasCarpetas|Cola]):- %Trabaja con carpetas directamente visibles
+	existeCarpetaNom(NombreOldC, R, C),
+	\+ existeCarpetaNom(NombreNewC, R, C), %No debe existir una carpeta con el nuevo nombre
+	crearCarpeta(NombreNewC, L, R, CarpetaRen),
+	eliminarCarpeta(NombreOldC, C, Aux),
+	anadirCarpeta(CarpetaRen, Aux, NuevasCarpetas).
+
+systemRen([N,D,U,[L,R],C,A|Cola], NombreOldA, NombreNewA, [N,D,U,[L,R],C,NuevosArchivos|Cola]):- %Trabaja con archivos directamente visibles
+	existeArchivoNom(NombreOldA, R, A),
+	\+ existeArchivoNom(NombreNewA, R, A),
+	reemplazarArchivo(NombreOldA, NombreNewA, A, NuevosArchivos).
 
 
 
